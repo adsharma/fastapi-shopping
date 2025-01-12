@@ -1,0 +1,36 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+/dist/
+/build/
+/eggs/
+*.egg-info/
+.installed.cfg
+*.whl
+
+# PyInstaller
+/dist/
+/build/
+
+# Python package directories
+site-packages/
+
+# FastAPI-specific files
+.env
+*.log
+*.pid
+
+# IDE directories
+.vscode/
+.pycharm/
+.idea/
+
+# Operating system files
+.DS_Store
+Thumbs.db
