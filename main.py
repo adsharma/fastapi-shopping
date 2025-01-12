@@ -1,7 +1,7 @@
 from fastapi import FastAPI
+from sqlmodel import SQLModel
 
 from db import engine
-from models import Base
 from routes.cart import router as cart_router
 from routes.catalog import router as catalog_router
 from routes.order import router as order_router
@@ -18,4 +18,4 @@ app.include_router(payments_router)
 
 
 # Create tables
-Base.metadata.create_all(bind=engine)
+SQLModel.metadata.create_all(bind=engine)
