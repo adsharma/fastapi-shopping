@@ -3,14 +3,15 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 
+from app.config import app_config
 from db import get_db
 from models import User
 
 # These should be in your environment variables
-SECRET_KEY = "your-secret-key"
-ALGORITHM = "HS256"
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+SECRET_KEY = app_config.SECRET_KEY
+ALGORITHM = app_config.ALGORITHM
 
 
 async def get_current_user(
