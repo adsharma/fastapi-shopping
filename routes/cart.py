@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from auth import get_current_user
 from db import get_db
 from models import Cart, CartItem, Order, OrderItem, Product, User
-from pydantic_models import CartItemCreate, CartOut
+from pydantic_models import CartItemCreate, CartItemOut, CartOut, ProductOut
 
 router = APIRouter(prefix="/cart")
 
@@ -63,7 +63,18 @@ async def get_cart(
     for item in cart.items:
         total += item.product.price * item.quantity
 
-    return CartOut(id=cart.id, items=cart.items, total=total)
+    return CartOut(
+        id=cart.id,
+        items=[
+            CartItemOut(
+                product_id=item.product_id,
+                quantity=item.quantity,
+                product=ProductOut.from_orm(item.product),
+            )
+            for item in cart.items
+        ],
+        total=total,
+    )
 
 
 @router.post("/cart/checkout/")
