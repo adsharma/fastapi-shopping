@@ -186,7 +186,9 @@ def test_cart_operations(client: TestClient, auth_headers: Dict[str, str]):
     assert len(response.json()["items"]) > 0
 
 
-def test_checkout_process(client: TestClient, auth_headers: Dict[str, str]):
+def test_checkout_process(
+    client: TestClient, auth_headers: Dict[str, str], mock_payment_intent
+):
     # First add item to cart
     client.post(
         "/cart/cart/items/", json={"product_id": 1, "quantity": 1}, headers=auth_headers
@@ -199,7 +201,14 @@ def test_checkout_process(client: TestClient, auth_headers: Dict[str, str]):
     assert "order_id" in response.json()
 
 
-def test_get_order(client: TestClient, auth_headers: Dict[str, str]):
+def test_get_order(
+    client: TestClient, auth_headers: Dict[str, str], mock_payment_intent
+):
+    # First add item to cart
+    client.post(
+        "/cart/cart/items/", json={"product_id": 1, "quantity": 1}, headers=auth_headers
+    )
+
     # Create an order first through checkout
     checkout_response = client.post("/cart/cart/checkout/", headers=auth_headers)
     order_id = checkout_response.json()["order_id"]

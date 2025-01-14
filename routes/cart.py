@@ -120,7 +120,7 @@ async def checkout(
         total_amount=total,
         items=order_items,
         payment_intent_id=intent.id,
-        payment_status="pending",
+        payment_intent_status="pending",
     )
 
     db.add(order)
