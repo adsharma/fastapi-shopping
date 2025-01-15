@@ -115,7 +115,7 @@ async def checkout(
         raise HTTPException(status_code=400, detail=str(e))
 
     # Create order
-    order_items = [o.__sqlmodel__ for o in order_items]
+    order_items = [o.sqlmodel() for o in order_items]
     order = Order(
         user_id=current_user.id,
         status="pending",
