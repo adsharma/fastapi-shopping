@@ -29,9 +29,10 @@ async def stripe_webhook(
 
     if event["type"] == "payment_intent.succeeded":
         payment_intent = event["data"]["object"]
+        OrderQ = Order.__sqlmodel__
         order = (
-            db.query(Order)
-            .filter(Order.payment_intent_id == payment_intent["id"])
+            db.query(OrderQ)
+            .filter(OrderQ.payment_intent_id == payment_intent["id"])
             .first()
         )
 

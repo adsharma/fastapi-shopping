@@ -16,7 +16,8 @@ def create_order(order: OrderCreate, db: Session = Depends(get_db)):
     order_items = []
 
     for item in order.items:
-        product = db.query(Product).filter(Product.id == item.product_id).first()
+        ProductQ = Product.__sqlmodel__
+        product = db.query(ProductQ).filter(ProductQ.id == item.product_id).first()
         if not product:
             raise HTTPException(
                 status_code=404, detail=f"Product {item.product_id} not found"
@@ -31,13 +32,15 @@ def create_order(order: OrderCreate, db: Session = Depends(get_db)):
         order_items.append(
             OrderItem(
                 product_id=item.product_id, quantity=item.quantity, price=product.price
-            )
+            ).sqlmodel()
         )
 
         # Update stock
         product.stock -= item.quantity
 
-    db_order = Order(status="pending", total_amount=total_amount, items=order_items)
+    db_order = Order(
+        status="pending", total_amount=total_amount, items=order_items
+    ).sqlmodel()
 
     db.add(db_order)
     db.commit()
@@ -47,7 +50,8 @@ def create_order(order: OrderCreate, db: Session = Depends(get_db)):
 
 @router.get("/orders/{order_id}", response_model=OrderOut)
 def get_order(order_id: int, db: Session = Depends(get_db)):
-    order = db.query(Order).filter(Order.id == order_id).first()
+    OrderQ = Order.__sqlmodel__
+    order = db.query(OrderQ).filter(OrderQ.id == order_id).first()
     if order is None:
         raise HTTPException(status_code=404, detail="Order not found")
     return order

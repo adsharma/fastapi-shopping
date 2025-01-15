@@ -83,7 +83,8 @@ async def checkout(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    cart = db.query(Cart).filter(Cart.user_id == current_user.id).first()
+    CartQ = Cart.__sqlmodel__
+    cart = db.query(CartQ).filter(CartQ.user_id == current_user.id).first()
     if not cart or not cart.items:
         raise HTTPException(status_code=404, detail="Cart is empty")
 
@@ -114,6 +115,7 @@ async def checkout(
         raise HTTPException(status_code=400, detail=str(e))
 
     # Create order
+    order_items = [o.__sqlmodel__ for o in order_items]
     order = Order(
         user_id=current_user.id,
         status="pending",
@@ -123,7 +125,7 @@ async def checkout(
         payment_intent_status="pending",
     )
 
-    db.add(order)
+    db.add(order.sqlmodel())
 
     # Clear cart
     for item in cart.items:
