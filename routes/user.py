@@ -45,7 +45,8 @@ def create_access_token(data: dict):
 async def login(
     form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
 ):
-    user = db.query(User).filter(User.email == form_data.username).first()
+    UserQ = User.__sqlmodel__
+    user = db.query(UserQ).filter(UserQ.email == form_data.username).first()
     if not user or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -59,11 +60,12 @@ async def login(
 # User endpoints
 @router.post("/users/", response_model=UserOut)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
-    db_user = db.query(User).filter(User.email == user.email).first()
+    UserQ = User.__sqlmodel__
+    db_user = db.query(UserQ).filter(UserQ.email == user.email).first()
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
     hashed_password = get_password_hash(user.password)
-    db_user = User(email=user.email, hashed_password=hashed_password)
+    db_user = User(email=user.email, hashed_password=hashed_password).sqlmodel()
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
