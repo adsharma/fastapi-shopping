@@ -65,7 +65,7 @@ def generate_test_products(db: Session) -> list:
     # Create categories
     db_categories = []
     for cat in categories:
-        db_category = Category(**cat)
+        db_category = Category.__sqlmodel__(**cat)
         db.add(db_category)
         db.commit()
         db.refresh(db_category)
@@ -74,7 +74,7 @@ def generate_test_products(db: Session) -> list:
     # Create products
     for i, name in enumerate(product_names):
         category = db_categories[i % len(db_categories)]
-        product = Product(
+        product = Product.__sqlmodel__(
             name=name,
             description=f"This is a test {name.lower()}",
             price=random.uniform(9.99, 999.99),

@@ -1,133 +1,71 @@
-from dataclasses import dataclass, field
+from dataclasses import field
 from datetime import datetime
 from typing import List, Optional
 
-from fquery.sqlmodel import (
-    SQL_PK,
-    foreignkey,
-    many_to_one,
-    one_to_many,
-    sqlmodel,
-    unique,
-)
-from sqlmodel import Field, Relationship, SQLModel
+from fquery.sqlmodel import SQL_PK, foreign_key, many_to_one, one_to_many, sqlmodel
 
 
 @sqlmodel
 class User:
+    id: Optional[int] = field(default=None, **SQL_PK)
     email: str
     hashed_password: str
     is_admin: bool = False
-    orders: List["Order"] = (
-        field(default_factory=[], metadata={"relationship": True}),
-    )
-    id: Optional[int] = field(default=None, **SQL_PK)
+    orders: List["Order"] = one_to_many()
 
 
 @sqlmodel
 class Category:
+    id: Optional[int] = field(default=None, **SQL_PK)
     name: str
     description: str
-    products: List["Product"] = (
-        field(default_factory=[], metadata={"relationship": True}),
-    )
-    id: Optional[int] = field(default=None, **SQL_PK)
+    products: List["Product"] = one_to_many()
 
 
 @sqlmodel
 class Product:
+    id: Optional[int] = field(default=None, **SQL_PK)
     name: str
     description: str
     price: float
     stock: int
-    category_id: Optional[int] = field(
-        default=None, metadata={"foreign_key": "category.id"}
-    )
-    category: Optional["Category"] = (
-        field(default=None, metadata={"relationship": True, "many_to_one": True}),
-    )
-    order_items: List["OrderItem"] = (
-        field(default_factory=[], metadata={"relationship": True}),
-    )
-    id: Optional[int] = field(default=None, **SQL_PK)
+    category: Optional[Category] = many_to_one("category.id")
+    order_items: List["OrderItem"] = one_to_many()
 
 
 @sqlmodel
 class Order:
+    id: Optional[int] = field(default=None, **SQL_PK)
     status: str
     total_amount: float
     payment_intent_id: str
     payment_intent_status: str
-    items: List["OrderItem"] = (
-        field(default_factory=[], metadata={"relationship": True}),
-    )
-    user_id: Optional[int] = field(default=None, metadata={"foreign_key": "user.id"})
-    user: Optional["User"] = (
-        field(default=None, metadata={"relationship": True, "many_to_one": True}),
-    )
+    items: List["OrderItem"] = one_to_many()
+    user: Optional[User] = many_to_one("user.id")
     created_at: datetime = field(default_factory=datetime.utcnow)
-    id: Optional[int] = field(default=None, **SQL_PK)
 
 
 @sqlmodel
 class OrderItem:
+    id: Optional[int] = field(default=None, **SQL_PK)
     quantity: int
     price: float
-    order_id: Optional[int] = field(default=None, metadata={"foreign_key": "order.id"})
-    order: Optional["Order"] = (
-        field(
-            default_factory=[],
-            metadata={
-                "relationship": True,
-                "many_to_one": True,
-                "back_populates": "items",
-            },
-        ),
-    )
-    product_id: Optional[int] = field(
-        default=None, metadata={"foreign_key": "product.id"}
-    )
-    product: Optional["Product"] = (
-        field(
-            default=None,
-            metadata={
-                "relationship": True,
-                "many_to_one": True,
-                "back_populates": "order_items",
-            },
-        ),
-    )
-    id: Optional[int] = field(default=None, **SQL_PK)
+    order: Optional[Order] = many_to_one("order.id", back_populates="items")
+    product: Optional[Product] = many_to_one("product.id", back_populates="order_items")
 
 
 @sqlmodel
 class Cart:
-    user_id: Optional[int] = field(default=None, metadata={"foreign_key": "user.id"})
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    items: List["CartItem"] = (
-        field(default_factory=[], metadata={"relationship": True}),
-    )
     id: Optional[int] = field(default=None, **SQL_PK)
+    user: Optional[User] = foreign_key("users.id")
+    created_at: datetime = field(default_factory=datetime.utcnow)
+    items: List["CartItem"] = one_to_many()
 
 
 @sqlmodel
 class CartItem:
+    id: Optional[int] = field(default=None, **SQL_PK)
     quantity: int
     cart_id: Optional[int] = field(default=None, metadata={"foreign_key": "cart.id"})
-    cart: Optional["Cart"] = (
-        field(
-            default=None,
-            metadata={
-                "relationship": True,
-                "many_to_one": True,
-                "back_populates": "items",
-            },
-        ),
-    )
-    product_id: Optional[int] = field(
-        default=None, metadata={"foreign_key": "product.id"}
-    )
-    product: Optional["Product"] = (
-        field(default=None, metadata={"relationship": True}),
-    )
-    id: Optional[int] = field(default=None, **SQL_PK)
+    cart: Optional[Cart] = many_to_one("cart.id", back_populates="items")
+    product: Optional[Product] = foreign_key("products.id")
