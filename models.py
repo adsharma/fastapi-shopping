@@ -2,11 +2,18 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import List, Optional
 
-from fquery.sqlmodel import SQL_PK, model
+from fquery.sqlmodel import (
+    SQL_PK,
+    foreignkey,
+    many_to_one,
+    one_to_many,
+    sqlmodel,
+    unique,
+)
+from sqlmodel import Field, Relationship, SQLModel
 
 
-@model()
-@dataclass
+@sqlmodel
 class User:
     email: str
     hashed_password: str
@@ -17,8 +24,7 @@ class User:
     id: Optional[int] = field(default=None, **SQL_PK)
 
 
-@model()
-@dataclass
+@sqlmodel
 class Category:
     name: str
     description: str
@@ -28,8 +34,7 @@ class Category:
     id: Optional[int] = field(default=None, **SQL_PK)
 
 
-@model()
-@dataclass
+@sqlmodel
 class Product:
     name: str
     description: str
@@ -47,8 +52,7 @@ class Product:
     id: Optional[int] = field(default=None, **SQL_PK)
 
 
-@model()
-@dataclass
+@sqlmodel
 class Order:
     status: str
     total_amount: float
@@ -65,8 +69,7 @@ class Order:
     id: Optional[int] = field(default=None, **SQL_PK)
 
 
-@model()
-@dataclass
+@sqlmodel
 class OrderItem:
     quantity: int
     price: float
@@ -97,8 +100,7 @@ class OrderItem:
     id: Optional[int] = field(default=None, **SQL_PK)
 
 
-@model()
-@dataclass
+@sqlmodel
 class Cart:
     user_id: Optional[int] = field(default=None, metadata={"foreign_key": "user.id"})
     created_at: datetime = field(default_factory=datetime.utcnow)
@@ -108,8 +110,7 @@ class Cart:
     id: Optional[int] = field(default=None, **SQL_PK)
 
 
-@model()
-@dataclass
+@sqlmodel
 class CartItem:
     quantity: int
     cart_id: Optional[int] = field(default=None, metadata={"foreign_key": "cart.id"})
