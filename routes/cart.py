@@ -18,30 +18,33 @@ async def add_to_cart(
     current_user: User = Depends(get_current_user),
 ):
     # Get or create cart
-    cart = db.query(Cart).filter(Cart.user_id == current_user.id).first()
+    CartQ = Cart.__sqlmodel__
+    cart = db.query(CartQ).filter(CartQ.user_id == current_user.id).first()
     if not cart:
-        cart = Cart(user_id=current_user.id)
+        cart = CartQ(user_id=current_user.id)
         db.add(cart)
         db.commit()
 
     # Check if product exists and has enough stock
-    product = db.query(Product).filter(Product.id == item.product_id).first()
+    ProductQ = Product.__sqlmodel__
+    product = db.query(ProductQ).filter(ProductQ.id == item.product_id).first()
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     if product.stock < item.quantity:
         raise HTTPException(status_code=400, detail="Not enough stock")
 
     # Add or update cart item
+    CartItemQ = CartItem.__sqlmodel__
     cart_item = (
-        db.query(CartItem)
-        .filter(CartItem.cart_id == cart.id, CartItem.product_id == item.product_id)
+        db.query(CartItemQ)
+        .filter(CartItemQ.cart_id == cart.id, CartItemQ.product_id == item.product_id)
         .first()
     )
 
     if cart_item:
         cart_item.quantity += item.quantity
     else:
-        cart_item = CartItem(
+        cart_item = CartItemQ(
             cart_id=cart.id, product_id=item.product_id, quantity=item.quantity
         )
         db.add(cart_item)
@@ -54,7 +57,8 @@ async def add_to_cart(
 async def get_cart(
     db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
 ):
-    cart = db.query(Cart).filter(Cart.user_id == current_user.id).first()
+    CartQ = Cart.__sqlmodel__
+    cart = db.query(CartQ).filter(CartQ.user_id == current_user.id).first()
     if not cart:
         raise HTTPException(status_code=404, detail="Cart not found")
 
@@ -84,6 +88,8 @@ async def checkout(
     current_user: User = Depends(get_current_user),
 ):
     CartQ = Cart.__sqlmodel__
+    OrderItemQ = OrderItem.__sqlmodel__
+    OrderQ = Order.__sqlmodel__
     cart = db.query(CartQ).filter(CartQ.user_id == current_user.id).first()
     if not cart or not cart.items:
         raise HTTPException(status_code=404, detail="Cart is empty")
@@ -99,7 +105,7 @@ async def checkout(
             )
         total += product.price * cart_item.quantity
         order_items.append(
-            OrderItem(
+            OrderItemQ(
                 product_id=product.id, quantity=cart_item.quantity, price=product.price
             )
         )
@@ -115,8 +121,8 @@ async def checkout(
         raise HTTPException(status_code=400, detail=str(e))
 
     # Create order
-    order_items = [o.sqlmodel() for o in order_items]
-    order = Order(
+    order_items = [o for o in order_items]
+    order = OrderQ(
         user_id=current_user.id,
         status="pending",
         total_amount=total,
@@ -125,7 +131,7 @@ async def checkout(
         payment_intent_status="pending",
     )
 
-    db.add(order.sqlmodel())
+    db.add(order)
 
     # Clear cart
     for item in cart.items:
