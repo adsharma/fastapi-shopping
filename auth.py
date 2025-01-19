@@ -34,7 +34,8 @@ async def get_current_user(
         raise credentials_exception
 
     # Get user from database
-    user = db.query(User).filter(User.email == email).first()
+    UserQ = User.__sqlmodel__
+    user = db.query(UserQ).filter(UserQ.email == email).first()
     if user is None:
         raise credentials_exception
 
