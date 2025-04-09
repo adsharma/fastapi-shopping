@@ -1,11 +1,10 @@
 import stripe
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
-from sqlalchemy.orm import Session
-
 from auth import get_current_user
 from db import get_db
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from models import Cart, CartItem, Order, OrderItem, Product, User
 from pydantic_models import CartItemCreate, CartItemOut, CartOut, ProductOut
+from sqlalchemy.orm import Session
 
 router = APIRouter(prefix="/cart")
 

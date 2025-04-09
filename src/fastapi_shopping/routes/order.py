@@ -1,9 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-
 from db import get_db
+from fastapi import APIRouter, Depends, HTTPException
 from models import Order, OrderItem, Product
 from pydantic_models import OrderCreate, OrderOut
+from sqlalchemy.orm import Session
 
 router = APIRouter(prefix="/catalog")
 

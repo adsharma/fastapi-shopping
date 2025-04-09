@@ -1,11 +1,10 @@
+from app.config import app_config
+from db import get_db
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
-from sqlalchemy.orm import Session
-
-from app.config import app_config
-from db import get_db
 from models import User
+from sqlalchemy.orm import Session
 
 # These should be in your environment variables
 

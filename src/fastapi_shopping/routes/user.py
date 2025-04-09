@@ -2,15 +2,14 @@ import datetime
 from datetime import timedelta
 
 import jwt
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from passlib.context import CryptContext
-from sqlalchemy.orm import Session
-
 from app.config import app_config
 from db import get_db
+from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from models import User
+from passlib.context import CryptContext
 from pydantic_models import UserCreate, UserOut
+from sqlalchemy.orm import Session
 
 router = APIRouter(prefix="/user")
 

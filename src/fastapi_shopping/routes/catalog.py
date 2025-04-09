@@ -1,11 +1,10 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-
 from db import get_db
+from fastapi import APIRouter, Depends, HTTPException
 from models import Category, Product
 from pydantic_models import CategoryCreate, CategoryOut, ProductCreate, ProductOut
+from sqlalchemy.orm import Session
 
 router = APIRouter(prefix="/catalog")
 
